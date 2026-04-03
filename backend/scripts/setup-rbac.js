@@ -22,18 +22,21 @@ async function runMigration() {
     });
 
     console.log('Connected successfully!');
-    console.log('Running RBAC migration...');
+    console.log('Running full database schema setup...');
 
-    // Read the migration SQL file
-    const migrationPath = path.join(__dirname, 'rbac-migration.sql');
-    const migrationSQL = fs.readFileSync(migrationPath, 'utf8');
+    // Read the full ecommerce_db.sql file
+    const sqlPath = path.join(__dirname, '..', '..', 'ecommerce_db.sql');
+    const schemaSQL = fs.readFileSync(sqlPath, 'utf8');
 
-    // Remove comment lines and split by semicolons
-    const cleanedSQL = migrationSQL
+    console.log('Executing schema SQL...');
+    
+    // Remove comment lines
+    const cleanedSQL = schemaSQL
       .split('\n')
-      .filter(line => !line.trim().startsWith('--'))
+      .filter(line => !line.trim().startsWith('--') && line.trim().length > 0)
       .join('\n');
 
+    // Split by semicolons and execute each statement
     const statements = cleanedSQL
       .split(';')
       .map(stmt => stmt.trim())
@@ -43,11 +46,18 @@ async function runMigration() {
 
     for (const statement of statements) {
       if (statement.trim()) {
-        await connection.query(statement);
+        try {
+          await connection.query(statement);
+        } catch (err) {
+          // Ignore errors for existing tables/data
+          if (!err.message.includes('already exists') && !err.message.includes('Duplicate entry')) {
+            console.warn(`Warning: ${err.message}`);
+          }
+        }
       }
     }
 
-    console.log('Migration completed successfully!');
+    console.log('Schema setup completed successfully!');
 
     // Verify the setup
     console.log('\n=== Verification ===');

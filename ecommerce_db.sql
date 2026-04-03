@@ -3,11 +3,8 @@
 -- MySQL 8+ | UTF8MB4 | InnoDB
 -- =====================================================
 
-CREATE DATABASE IF NOT EXISTS ecommerce_db
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
-
-USE ecommerce_db;
+-- Railway uses 'railway' as database name, skip CREATE DATABASE
+USE railway;
 
 -- =========================
 -- 1) USERS (người dùng)
