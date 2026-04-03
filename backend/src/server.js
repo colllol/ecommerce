@@ -4,11 +4,10 @@ const mysql = require('mysql2/promise');
 const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
-const apiRoutes = require('./routes');
 
 const app = express();
 
-// CORS configuration for production
+// CORS configuration
 const corsOptions = {
   origin: process.env.FRONTEND_URL
     ? process.env.FRONTEND_URL.split(',')
@@ -17,28 +16,33 @@ const corsOptions = {
   optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
-
 app.use(express.json());
 
+// Health check
 app.get('/', (req, res) => {
-  res.json({ message: 'Ecommerce API running' });
+  res.json({ message: 'Ecommerce API running', version: '2.0-test' });
 });
 
-// Temporary setup endpoint - DELETE after setup!
+// Test endpoint
+app.get('/api/test', (req, res) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+// Temporary setup endpoint
 app.post('/api/setup', async (req, res) => {
   const { token } = req.body;
   const SETUP_TOKEN = process.env.SETUP_TOKEN || 'temp-setup-token-change-me';
-  
+
   if (token !== SETUP_TOKEN) {
     return res.status(403).json({ message: 'Unauthorized' });
   }
 
   let connection;
   const logs = [];
-  
+
   try {
     console.log('Setup endpoint called - connecting to database...');
-    
+
     connection = await mysql.createConnection({
       host: process.env.DB_HOST || 'localhost',
       port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 3306,
@@ -50,13 +54,13 @@ app.post('/api/setup', async (req, res) => {
     logs.push('Connected successfully!');
     console.log('Connected successfully!');
 
-    // Read the full ecommerce_db.sql file (now in backend folder)
+    // Read the full ecommerce_db.sql file
     const sqlPath = path.join(__dirname, '..', 'ecommerce_db.sql');
     const schemaSQL = fs.readFileSync(sqlPath, 'utf8');
 
     logs.push('Executing schema SQL...');
     console.log('Executing schema SQL...');
-    
+
     // Remove comment lines
     const cleanedSQL = schemaSQL
       .split('\n')
@@ -119,28 +123,19 @@ app.post('/api/setup', async (req, res) => {
   }
 });
 
-app.use('/api', apiRoutes);
-
 // 404
 app.use((req, res) => {
-  res.status(404).json({ message: 'Không tìm thấy API' });
+  res.status(404).json({ error: 'Route not found', path: req.originalUrl });
 });
 
-// error handler
-// eslint-disable-next-line no-unused-vars
+// Error handler
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
-  if (err?.type === 'entity.parse.failed') {
-    return res.status(400).json({ message: 'JSON body không hợp lệ' });
-  }
-
-  const status = err?.statusCode || err?.status || 500;
-  return res.status(status).json({ message: status === 500 ? 'Lỗi server' : 'Yêu cầu không hợp lệ' });
+  res.status(500).json({ message: 'Server error' });
 });
 
 const PORT = process.env.PORT || 4000;
 
 app.listen(PORT, () => {
-  console.log(`Ecommerce API listening on port ${PORT}`);
+  console.log(`Ecommerce API v2.0-test listening on port ${PORT}`);
 });
-
