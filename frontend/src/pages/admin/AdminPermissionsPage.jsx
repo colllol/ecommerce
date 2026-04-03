@@ -15,13 +15,13 @@ export default function AdminPermissionsPage() {
     if (hasPermission('VIEW_PERMISSIONS')) {
       loadPermissions();
     }
-  }, []);
+  }, [hasPermission]);
 
   const loadPermissions = async () => {
     try {
       const res = await permissionsApi.getAll();
       setPermissions(res.data.permissions || []);
-    } catch (err) {
+    } catch {
       setMessage({ type: 'error', text: 'Không thể tải danh sách permissions' });
     } finally {
       setLoading(false);

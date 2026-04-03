@@ -1,6 +1,6 @@
 const express = require('express');
 const ProductController = require('../controllers/productController');
-const { authenticate, authorizeAdmin } = require('../middlewares/authMiddleware');
+const { verifyToken, checkPermission } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
@@ -9,10 +9,10 @@ router.get('/', ProductController.getAll);
 router.get('/by-category/:categoryId', ProductController.getByCategory);
 router.get('/:id', ProductController.getById);
 
-// admin
-router.post('/', authenticate, authorizeAdmin, ProductController.create);
-router.put('/:id', authenticate, authorizeAdmin, ProductController.update);
-router.delete('/:id', authenticate, authorizeAdmin, ProductController.remove);
+// RBAC protected
+router.post('/', verifyToken, checkPermission('CREATE_PRODUCT'), ProductController.create);
+router.put('/:id', verifyToken, checkPermission('EDIT_PRODUCT'), ProductController.update);
+router.delete('/:id', verifyToken, checkPermission('DELETE_PRODUCT'), ProductController.remove);
 
 module.exports = router;
 

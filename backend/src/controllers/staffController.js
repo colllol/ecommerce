@@ -1,6 +1,5 @@
 const UserModel = require('../models/userModel');
 const InventoryTransactionModel = require('../models/inventoryTransactionModel');
-const OrderModel = require('../models/orderModel');
 
 const StaffController = {
   // Admin: Get all staff members
@@ -99,7 +98,7 @@ const StaffController = {
   // Get reports for admin
   async getReports(req, res) {
     try {
-      const { startDate, endDate, type } = req.query;
+      const { startDate, endDate } = req.query;
       
       // Inventory summary
       const inventorySummary = await InventoryTransactionModel.getInventorySummary();
@@ -111,13 +110,11 @@ const StaffController = {
         endDate || null
       );
 
-      // Calculate total sales value
-      let totalSalesValue = 0;
+      // Calculate total sales value (placeholder - would need product prices for actual value)
       const productSales = {};
-      
+
       for (const sale of salesHistory) {
         const qty = Math.abs(sale.quantity);
-        totalSalesValue += qty * 0; // Would need product price for actual value
         if (!productSales[sale.product_id]) {
           productSales[sale.product_id] = {
             product_id: sale.product_id,

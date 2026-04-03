@@ -1,18 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const StaffController = require('../controllers/staffController');
-const { authenticate, authorizeAdmin, authorizeStaff } = require('../middlewares/authMiddleware');
+const { verifyToken, checkPermission } = require('../middlewares/authMiddleware');
 
-// Admin only routes
-router.get('/', authenticate, authorizeAdmin, StaffController.getAllStaff);
-router.post('/', authenticate, authorizeAdmin, StaffController.createStaff);
-router.put('/:id', authenticate, authorizeAdmin, StaffController.updateStaff);
-router.delete('/:id', authenticate, authorizeAdmin, StaffController.removeStaff);
+// RBAC protected - Staff management
+router.get('/', verifyToken, checkPermission('VIEW_USERS'), StaffController.getAllStaff);
+router.post('/', verifyToken, checkPermission('CREATE_USER'), StaffController.createStaff);
+router.put('/:id', verifyToken, checkPermission('EDIT_USER'), StaffController.updateStaff);
+router.delete('/:id', verifyToken, checkPermission('DELETE_USER'), StaffController.removeStaff);
 
-// Reports (admin only)
-router.get('/reports/overview', authenticate, authorizeAdmin, StaffController.getReports);
+// RBAC protected - Reports (admin/manager)
+router.get('/reports/overview', verifyToken, checkPermission('VIEW_DASHBOARD'), StaffController.getReports);
 
-// Staff can view their own activity
-router.get('/my-activity', authenticate, authorizeStaff, StaffController.getMyActivity);
+// RBAC protected - Staff can view their own activity
+router.get('/my-activity', verifyToken, StaffController.getMyActivity);
 
 module.exports = router;

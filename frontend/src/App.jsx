@@ -1,5 +1,4 @@
-import React from 'react';
-import { Link, Route, Routes, useLocation } from 'react-router-dom';
+import { Link, Route, Routes } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import HomePage from './pages/HomePage';
 import ProductDetailPage from './pages/ProductDetailPage';
@@ -11,9 +10,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Header from './components/Header';
 
 function UserLayout({ children }) {
-  const location = useLocation();
-  const isLoginPage = location.pathname === '/login';
-
   return (
     <div>
       <Header />

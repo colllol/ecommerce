@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
 const CartContext = createContext(null);
 
@@ -22,19 +22,20 @@ function calcLineTotal(item) {
   return Math.max(0, Math.round(raw));
 }
 
-export function CartProvider({ children }) {
-  const [items, setItems] = useState([]);
-
-  useEffect(() => {
-    const stored = localStorage.getItem('cart');
-    if (stored) {
-      try {
-        setItems(JSON.parse(stored));
-      } catch {
-        localStorage.removeItem('cart');
-      }
+function getInitialCartItems() {
+  const stored = localStorage.getItem('cart');
+  if (stored) {
+    try {
+      return JSON.parse(stored);
+    } catch {
+      localStorage.removeItem('cart');
     }
-  }, []);
+  }
+  return [];
+}
+
+export function CartProvider({ children }) {
+  const [items, setItems] = useState(getInitialCartItems);
 
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(items));

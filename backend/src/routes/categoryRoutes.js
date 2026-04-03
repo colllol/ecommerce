@@ -1,6 +1,6 @@
 const express = require('express');
 const CategoryController = require('../controllers/categoryController');
-const { authenticate, authorizeAdmin } = require('../middlewares/authMiddleware');
+const { verifyToken, checkPermission } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
@@ -8,10 +8,10 @@ const router = express.Router();
 router.get('/', CategoryController.getAll);
 router.get('/:id', CategoryController.getById);
 
-// admin
-router.post('/', authenticate, authorizeAdmin, CategoryController.create);
-router.put('/:id', authenticate, authorizeAdmin, CategoryController.update);
-router.delete('/:id', authenticate, authorizeAdmin, CategoryController.remove);
+// RBAC protected
+router.post('/', verifyToken, checkPermission('CREATE_PRODUCT'), CategoryController.create);
+router.put('/:id', verifyToken, checkPermission('EDIT_PRODUCT'), CategoryController.update);
+router.delete('/:id', verifyToken, checkPermission('DELETE_PRODUCT'), CategoryController.remove);
 
 module.exports = router;
 

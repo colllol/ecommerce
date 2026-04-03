@@ -1,6 +1,5 @@
 const InventoryModel = require('../models/inventoryModel');
 const InventoryTransactionModel = require('../models/inventoryTransactionModel');
-const ProductModel = require('../models/productModel');
 
 const InventoryController = {
   // Admin: Get all inventory

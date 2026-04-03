@@ -9,17 +9,17 @@ const inventoryRoutes = require('./inventoryRoutes');
 const staffRoutes = require('./staffRoutes');
 const roleRoutes = require('./roleRoutes');
 const permissionRoutes = require('./permissionRoutes');
+const dashboardRoutes = require('./dashboardRoutes');
 
 const router = express.Router();
 
 // Public routes
 router.use('/auth', authRoutes);
 
-// RBAC routes (require authentication)
+// RBAC routes (require authentication + permissions)
+router.use('/dashboard', dashboardRoutes);
 router.use('/roles', roleRoutes);
 router.use('/permissions', permissionRoutes);
-
-// Protected resource routes
 router.use('/users', userRoutes);
 router.use('/categories', categoryRoutes);
 router.use('/products', productRoutes);

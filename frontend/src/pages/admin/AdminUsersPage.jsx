@@ -3,7 +3,7 @@ import { usersApi, rolesApi } from '../../services/rbacApi';
 import { useAuth } from '../../shared/AuthContext';
 
 export default function AdminUsersPage() {
-  const { hasPermission, hasRole } = useAuth();
+  const { hasPermission } = useAuth();
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -48,7 +48,7 @@ export default function AdminUsersPage() {
       loadUsers();
       loadRoles();
     }
-  }, []);
+  }, [hasPermission]);
 
   const openCreate = () => {
     setForm({ full_name: '', email: '', phone: '', password: '', roleIds: [], status: 'active' });

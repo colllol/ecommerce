@@ -111,24 +111,43 @@ const OrderController = {
   async remove(req, res) {
     try {
       const { id } = req.params;
-      
+
       // Check if order exists and belongs to current user (for non-admin)
       const order = await OrderModel.findById(id);
       if (!order) return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
-      
+
       // If not admin, check if user owns this order
-      if (req.user.role !== 'admin' && order.user_id !== req.user.user_id) {
+      if (!req.user?.roles?.includes('Admin') && order.user_id !== req.user.user_id) {
         return res.status(403).json({ message: 'Bạn không có quyền xóa đơn hàng này' });
       }
-      
+
       // Check if order status is pending (only pending orders can be cancelled by user)
-      if (req.user.role !== 'admin' && order.order_status !== 'pending') {
+      if (!req.user?.roles?.includes('Admin') && order.order_status !== 'pending') {
         return res.status(400).json({ message: 'Chỉ có thể hủy đơn hàng ở trạng thái "Chờ xác nhận"' });
       }
-      
+
       const ok = await OrderModel.remove(id);
       if (!ok) return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
       return res.json({ success: true });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ message: 'Lỗi server' });
+    }
+  },
+
+  /**
+   * Admin delete order (with DELETE_ORDER permission)
+   */
+  async removeAdmin(req, res) {
+    try {
+      const { id } = req.params;
+
+      const order = await OrderModel.findById(id);
+      if (!order) return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
+
+      const ok = await OrderModel.remove(id);
+      if (!ok) return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
+      return res.json({ success: true, message: 'Xóa đơn hàng thành công' });
     } catch (err) {
       console.error(err);
       return res.status(500).json({ message: 'Lỗi server' });

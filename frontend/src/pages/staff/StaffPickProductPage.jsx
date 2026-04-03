@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../shared/AuthContext';
@@ -12,11 +12,7 @@ export default function StaffPickProductPage() {
   const [pickData, setPickData] = useState({ quantity: '', note: '' });
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    fetchProduct();
-  }, [id]);
-
-  const fetchProduct = async () => {
+  const fetchProduct = useCallback(async () => {
     try {
       const res = await axios.get(`/api/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -27,7 +23,11 @@ export default function StaffPickProductPage() {
       console.error(err);
       setLoading(false);
     }
-  };
+  }, [id, token]);
+
+  useEffect(() => {
+    fetchProduct();
+  }, [fetchProduct]);
 
   const handlePickProduct = async (e) => {
     e.preventDefault();

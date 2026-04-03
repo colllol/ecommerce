@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../shared/AuthContext';
 
@@ -8,11 +8,7 @@ export default function StaffSalesHistoryPage() {
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState({ startDate: '', endDate: '' });
 
-  useEffect(() => {
-    fetchHistory();
-  }, []);
-
-  const fetchHistory = async () => {
+  const fetchHistory = useCallback(async () => {
     try {
       const params = {};
       if (dateRange.startDate) params.startDate = dateRange.startDate;
@@ -28,7 +24,13 @@ export default function StaffSalesHistoryPage() {
       console.error(err);
       setLoading(false);
     }
-  };
+  }, [dateRange.startDate, dateRange.endDate, token]);
+
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    fetchHistory();
+  }, [fetchHistory]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleApplyFilter = () => {
     fetchHistory();

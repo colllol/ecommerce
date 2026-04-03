@@ -1,22 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../shared/AuthContext';
 
 export default function AdminInventoryPage() {
-  const { user } = useAuth();
+  const { token } = useAuth();
   const [inventory, setInventory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [addStockData, setAddStockData] = useState({ productId: '', quantity: '', warehouseLocation: '', note: '' });
 
-  useEffect(() => {
-    fetchInventory();
-  }, []);
-
-  const fetchInventory = async () => {
+  const fetchInventory = useCallback(async () => {
     try {
       const res = await axios.get('/api/inventory', {
-        headers: { Authorization: `Bearer ${user.token}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
       setInventory(res.data);
       setLoading(false);
@@ -24,13 +20,19 @@ export default function AdminInventoryPage() {
       console.error(err);
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    fetchInventory();
+  }, [fetchInventory]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleAddStock = async (e) => {
     e.preventDefault();
     try {
       await axios.post('/api/inventory/add-stock', addStockData, {
-        headers: { Authorization: `Bearer ${user.token}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
       alert('Nhập kho thành công');
       setShowAddModal(false);
@@ -44,7 +46,7 @@ export default function AdminInventoryPage() {
   const handleUpdateInventory = async (inventoryId, field, value) => {
     try {
       await axios.put(`/api/inventory/${inventoryId}`, { [field]: value }, {
-        headers: { Authorization: `Bearer ${user.token}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
       alert('Cập nhật thành công');
       fetchInventory();

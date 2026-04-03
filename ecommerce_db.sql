@@ -1,5 +1,7 @@
--- Schema MySQL cho website bán hàng
--- Tương thích MySQL 8+
+-- =====================================================
+-- E-Commerce Database Schema with RBAC Integration
+-- MySQL 8+ | UTF8MB4 | InnoDB
+-- =====================================================
 
 CREATE DATABASE IF NOT EXISTS ecommerce_db
   CHARACTER SET utf8mb4
@@ -25,7 +27,57 @@ CREATE TABLE IF NOT EXISTS Users (
 ) ENGINE=InnoDB;
 
 -- =========================
--- 2) CATEGORIES (danh mục)
+-- 2) RBAC: ROLES
+-- =========================
+CREATE TABLE IF NOT EXISTS Roles (
+  id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name        VARCHAR(50) NOT NULL UNIQUE,
+  description VARCHAR(255),
+  created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- =========================
+-- 3) RBAC: PERMISSIONS
+-- =========================
+CREATE TABLE IF NOT EXISTS Permissions (
+  id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name        VARCHAR(100) NOT NULL UNIQUE,
+  description VARCHAR(255),
+  created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- =========================
+-- 4) RBAC: USER_ROLES (many-to-many)
+-- =========================
+CREATE TABLE IF NOT EXISTS User_Roles (
+  user_id BIGINT UNSIGNED NOT NULL,
+  role_id INT UNSIGNED NOT NULL,
+  PRIMARY KEY (user_id, role_id),
+  CONSTRAINT fk_ur_user
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_ur_role
+    FOREIGN KEY (role_id) REFERENCES Roles(id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- =========================
+-- 5) RBAC: ROLE_PERMISSIONS (many-to-many)
+-- =========================
+CREATE TABLE IF NOT EXISTS Role_Permissions (
+  role_id       INT UNSIGNED NOT NULL,
+  permission_id INT UNSIGNED NOT NULL,
+  PRIMARY KEY (role_id, permission_id),
+  CONSTRAINT fk_rp_role
+    FOREIGN KEY (role_id) REFERENCES Roles(id)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_rp_permission
+    FOREIGN KEY (permission_id) REFERENCES Permissions(id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- =========================
+-- 6) CATEGORIES (danh mục)
 -- =========================
 CREATE TABLE IF NOT EXISTS Categories (
   category_id         BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -45,7 +97,7 @@ CREATE TABLE IF NOT EXISTS Categories (
 ) ENGINE=InnoDB;
 
 -- =========================
--- 3) PRODUCTS (sản phẩm) - Thông tin sản phẩm
+-- 7) PRODUCTS (sản phẩm)
 -- =========================
 CREATE TABLE IF NOT EXISTS Products (
   product_id           BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -72,7 +124,7 @@ CREATE TABLE IF NOT EXISTS Products (
 ) ENGINE=InnoDB;
 
 -- =========================
--- 3b) INVENTORY (kho hàng) - Tách từ Products ra
+-- 8) INVENTORY (kho hàng)
 -- =========================
 CREATE TABLE IF NOT EXISTS Inventory (
   inventory_id         BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -90,7 +142,7 @@ CREATE TABLE IF NOT EXISTS Inventory (
 ) ENGINE=InnoDB;
 
 -- =========================
--- 3c) INVENTORY_TRANSACTIONS (lịch sử xuất/nhập kho)
+-- 9) INVENTORY_TRANSACTIONS (lịch sử xuất/nhập kho)
 -- =========================
 CREATE TABLE IF NOT EXISTS InventoryTransactions (
   transaction_id       BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -119,7 +171,7 @@ CREATE TABLE IF NOT EXISTS InventoryTransactions (
 ) ENGINE=InnoDB;
 
 -- =========================
--- 4) ORDERS (đặt hàng)
+-- 10) ORDERS (đặt hàng)
 -- =========================
 CREATE TABLE IF NOT EXISTS Orders (
   order_id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -149,7 +201,7 @@ CREATE TABLE IF NOT EXISTS Orders (
 ) ENGINE=InnoDB;
 
 -- =========================
--- 5) ORDERITEM (giỏ hàng / chi tiết đơn)
+-- 11) ORDERITEM (chi tiết đơn hàng)
 -- =========================
 CREATE TABLE IF NOT EXISTS OrderItem (
   order_item_id          BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -175,7 +227,7 @@ CREATE TABLE IF NOT EXISTS OrderItem (
 ) ENGINE=InnoDB;
 
 -- =========================
--- 6) PAYMENTS (thanh toán online)
+-- 12) PAYMENTS (thanh toán)
 -- =========================
 CREATE TABLE IF NOT EXISTS Payments (
   payment_id             BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -198,25 +250,26 @@ CREATE TABLE IF NOT EXISTS Payments (
   CONSTRAINT chk_payments_amount CHECK (amount >= 0)
 ) ENGINE=InnoDB;
 
--- Gợi ý: lấy tổng tiền đơn hàng từ OrderItem
--- SELECT order_id, SUM(line_total) FROM OrderItem GROUP BY order_id;
+-- =====================================================
+-- SEED DATA
+-- =====================================================
 
+-- Categories
 INSERT INTO Categories (category_name, slug, description)
 VALUES
 ('Điện thoại', 'dien-thoai', 'Các loại smartphone chính hãng'),
 ('Laptop', 'laptop', 'Laptop văn phòng, gaming'),
 ('Phụ kiện', 'phu-kien', 'Tai nghe, sạc, chuột...');
 
--- Insert Products (without stock_quantity)
-INSERT INTO Products
-(category_id, product_name, slug, sku, price, image_url)
+-- Products
+INSERT INTO Products (category_id, product_name, slug, sku, price, image_url)
 VALUES
 (1, 'iPhone 15 Pro', 'iphone-15-pro', 'IP15PRO001', 28000000, 'iphone15.jpg'),
 (1, 'Samsung Galaxy S24', 'samsung-galaxy-s24', 'SSS24001', 22000000, 's24.jpg'),
 (2, 'MacBook Air M3', 'macbook-air-m3', 'MBAIRM3001', 32000000, 'macbookm3.jpg'),
 (3, 'Tai nghe Bluetooth Sony', 'tai-nghe-sony', 'SONYBT001', 2500000, 'sony.jpg');
 
--- Insert Inventory data (tách từ stock_quantity ra)
+-- Inventory
 INSERT INTO Inventory (product_id, stock_quantity, reserved_quantity, available_quantity, warehouse_location)
 VALUES
 (1, 20, 0, 20, 'Kho A'),
@@ -224,25 +277,126 @@ VALUES
 (3, 10, 0, 10, 'Kho B'),
 (4, 50, 0, 50, 'Kho C');
 
--- Insert Users with staff role
+-- RBAC: Roles
+INSERT INTO Roles (name, description) VALUES
+('Admin', 'Quản trị viên - Toàn quyền truy cập hệ thống'),
+('Manager', 'Quản lý - Quản lý người dùng, sản phẩm, đơn hàng'),
+('Staff', 'Nhân viên - Xử lý đơn hàng, hỗ trợ khách hàng'),
+('Customer', 'Khách hàng - Mua sắm, xem sản phẩm');
+
+-- RBAC: Permissions (22 permissions)
+INSERT INTO Permissions (name, description) VALUES
+-- Dashboard
+('VIEW_DASHBOARD', 'Xem trang dashboard'),
+-- Users
+('CREATE_USER', 'Tạo người dùng mới'),
+('EDIT_USER', 'Chỉnh sửa thông tin người dùng'),
+('DELETE_USER', 'Xóa người dùng'),
+('VIEW_USERS', 'Xem danh sách người dùng'),
+-- Roles
+('CREATE_ROLE', 'Tạo vai trò mới'),
+('EDIT_ROLE', 'Chỉnh sửa vai trò'),
+('DELETE_ROLE', 'Xóa vai trò'),
+('VIEW_ROLES', 'Xem danh sách vai trò'),
+-- Permissions
+('CREATE_PERMISSION', 'Tạo quyền mới'),
+('EDIT_PERMISSION', 'Chỉnh sửa quyền'),
+('DELETE_PERMISSION', 'Xóa quyền'),
+('VIEW_PERMISSIONS', 'Xem danh sách quyền'),
+-- Products
+('CREATE_PRODUCT', 'Tạo sản phẩm mới'),
+('EDIT_PRODUCT', 'Chỉnh sửa sản phẩm'),
+('DELETE_PRODUCT', 'Xóa sản phẩm'),
+('VIEW_PRODUCTS', 'Xem danh sách sản phẩm'),
+-- Orders
+('VIEW_ORDERS', 'Xem danh sách đơn hàng'),
+('EDIT_ORDER', 'Chỉnh sửa đơn hàng'),
+('DELETE_ORDER', 'Xóa đơn hàng'),
+-- Inventory
+('VIEW_INVENTORY', 'Xem kho hàng'),
+('EDIT_INVENTORY', 'Chỉnh sửa kho hàng');
+
+-- RBAC: Role Permissions
+-- Admin: All 22 permissions
+INSERT INTO Role_Permissions (role_id, permission_id)
+SELECT 1, id FROM Permissions;
+
+-- Manager: 12 permissions
+INSERT INTO Role_Permissions (role_id, permission_id) VALUES
+(2, (SELECT id FROM Permissions WHERE name = 'VIEW_DASHBOARD')),
+(2, (SELECT id FROM Permissions WHERE name = 'VIEW_USERS')),
+(2, (SELECT id FROM Permissions WHERE name = 'CREATE_USER')),
+(2, (SELECT id FROM Permissions WHERE name = 'EDIT_USER')),
+(2, (SELECT id FROM Permissions WHERE name = 'VIEW_ROLES')),
+(2, (SELECT id FROM Permissions WHERE name = 'VIEW_PRODUCTS')),
+(2, (SELECT id FROM Permissions WHERE name = 'CREATE_PRODUCT')),
+(2, (SELECT id FROM Permissions WHERE name = 'EDIT_PRODUCT')),
+(2, (SELECT id FROM Permissions WHERE name = 'VIEW_ORDERS')),
+(2, (SELECT id FROM Permissions WHERE name = 'EDIT_ORDER')),
+(2, (SELECT id FROM Permissions WHERE name = 'VIEW_INVENTORY')),
+(2, (SELECT id FROM Permissions WHERE name = 'EDIT_INVENTORY'));
+
+-- Staff: 6 permissions
+INSERT INTO Role_Permissions (role_id, permission_id) VALUES
+(3, (SELECT id FROM Permissions WHERE name = 'VIEW_DASHBOARD')),
+(3, (SELECT id FROM Permissions WHERE name = 'VIEW_PRODUCTS')),
+(3, (SELECT id FROM Permissions WHERE name = 'VIEW_ORDERS')),
+(3, (SELECT id FROM Permissions WHERE name = 'EDIT_ORDER')),
+(3, (SELECT id FROM Permissions WHERE name = 'VIEW_INVENTORY')),
+(3, (SELECT id FROM Permissions WHERE name = 'VIEW_USERS'));
+
+-- Customer: 2 permissions (basic)
+INSERT INTO Role_Permissions (role_id, permission_id) VALUES
+(4, (SELECT id FROM Permissions WHERE name = 'VIEW_DASHBOARD')),
+(4, (SELECT id FROM Permissions WHERE name = 'VIEW_PRODUCTS'));
+
+-- Users (password: 123456 for all)
+-- bcrypt hash of '123456' with salt rounds 10
 INSERT INTO Users (full_name, email, phone, password_hash, role, status)
 VALUES
-('Nguyễn Văn A', 'vana@example.com', '0901111111',
- '$2a$10$YrDWemak5jvx2G9IuL8Pr..Vk9TgBUSy8p3RSiGqATZ9j4o1rPfpK',
- 'customer', 'active'),
-
- ('Admin', 'admin@example.com', '0900000000',
- '$2a$10$YrDWemak5jvx2G9IuL8Pr..Vk9TgBUSy8p3RSiGqATZ9j4o1rPfpK',
+('Admin', 'admin@example.com', '0900000000',
+ '$2a$10$l2eenx/7sZ6ymURFdgxMSe8Bfr31Jyi8spXSb/GOyokEU.2ybPjXi',
  'admin', 'active'),
 
+('Nguyễn Văn A', 'vana@example.com', '0901111111',
+ '$2a$10$l2eenx/7sZ6ymURFdgxMSe8Bfr31Jyi8spXSb/GOyokEU.2ybPjXi',
+ 'customer', 'active'),
+
 ('Trần Thị B', 'thib@example.com', '0902222222',
- '$2a$10$YrDWemak5jvx2G9IuL8Pr..Vk9TgBUSy8p3RSiGqATZ9j4o1rPfpK',
+ '$2a$10$l2eenx/7sZ6ymURFdgxMSe8Bfr31Jyi8spXSb/GOyokEU.2ybPjXi',
  'customer', 'active'),
 
 ('Nhân Viên 1', 'staff1@example.com', '0903333333',
- '$2a$10$YrDWemak5jvx2G9IuL8Pr..Vk9TgBUSy8p3RSiGqATZ9j4o1rPfpK',
- 'staff', 'active');
- INSERT INTO Orders
+ '$2a$10$l2eenx/7sZ6ymURFdgxMSe8Bfr31Jyi8spXSb/GOyokEU.2ybPjXi',
+ 'staff', 'active'),
+
+('Manager User', 'manager@example.com', '0900000002',
+ '$2a$10$l2eenx/7sZ6ymURFdgxMSe8Bfr31Jyi8spXSb/GOyokEU.2ybPjXi',
+ 'staff', 'active'),
+
+('Basic User', 'user@example.com', '0900000003',
+ '$2a$10$l2eenx/7sZ6ymURFdgxMSe8Bfr31Jyi8spXSb/GOyokEU.2ybPjXi',
+ 'customer', 'active');
+
+-- Assign roles to users
+INSERT INTO User_Roles (user_id, role_id)
+SELECT user_id, 1 FROM Users WHERE email = 'admin@example.com'
+ON DUPLICATE KEY UPDATE role_id = 1;
+
+INSERT INTO User_Roles (user_id, role_id)
+SELECT user_id, 2 FROM Users WHERE email = 'manager@example.com'
+ON DUPLICATE KEY UPDATE role_id = 2;
+
+INSERT INTO User_Roles (user_id, role_id)
+SELECT user_id, 3 FROM Users WHERE email = 'staff1@example.com'
+ON DUPLICATE KEY UPDATE role_id = 3;
+
+INSERT INTO User_Roles (user_id, role_id)
+SELECT user_id, 4 FROM Users WHERE email IN ('vana@example.com', 'thib@example.com', 'user@example.com')
+ON DUPLICATE KEY UPDATE role_id = 4;
+
+-- Sample Order
+INSERT INTO Orders
 (user_id, order_code, order_status,
  shipping_name, shipping_phone, shipping_address,
  subtotal_amount, shipping_fee, discount_amount, total_amount)
@@ -250,15 +404,14 @@ VALUES
 (2, 'ORD0001', 'confirmed',
  'Nguyễn Văn A', '0901111111', 'Hà Nội',
  28000000, 30000, 0, 28030000);
- 
- INSERT INTO OrderItem
+
+INSERT INTO OrderItem
 (order_id, product_id, quantity, unit_price, discount_percent, line_total)
 VALUES
 (1, 2, 1, 22000000, 0, 22000000);
+
 INSERT INTO Payments
 (order_id, payment_method, transaction_ref, payment_status, amount, paid_at, gateway_response)
 VALUES
 (1, 'vnpay', 'VNPAY123456', 'paid', 28030000, NOW(),
  JSON_OBJECT('bank', 'VCB', 'response_code', '00'));
- select*from Users
- 

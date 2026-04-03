@@ -19,13 +19,13 @@ export default function AdminRolesPage() {
       loadRoles();
       loadPermissions();
     }
-  }, []);
+  }, [hasPermission]);
 
   const loadRoles = async () => {
     try {
       const res = await rolesApi.getAll();
       setRoles(res.data.roles || []);
-    } catch (err) {
+    } catch {
       setMessage({ type: 'error', text: 'Không thể tải danh sách roles' });
     } finally {
       setLoading(false);
@@ -36,7 +36,7 @@ export default function AdminRolesPage() {
     try {
       const res = await permissionsApi.getAll();
       setPermissions(res.data.permissions || []);
-    } catch (err) {
+    } catch {
       setMessage({ type: 'error', text: 'Không thể tải danh sách permissions' });
     }
   };
@@ -85,7 +85,7 @@ export default function AdminRolesPage() {
       const roleData = res.data.role;
       setSelectedPermissions(roleData.permissions?.map(p => p.id) || []);
       setShowPermissionsModal(true);
-    } catch (err) {
+    } catch {
       setMessage({ type: 'error', text: 'Không thể tải permissions của role' });
     }
   };
@@ -224,7 +224,7 @@ export default function AdminRolesPage() {
       {showPermissionsModal && (
         <div className="modal-overlay" onClick={() => setShowPermissionsModal(false)}>
           <div className="modal-content modal-large" onClick={e => e.stopPropagation()}>
-            <h2>Gán Permissions cho "{editingRole?.name}"</h2>
+            <h2>Gán Permissions cho &quot;{editingRole?.name}&quot;</h2>
             <div className="permissions-grid">
               {permissions.map(perm => (
                 <label key={perm.id} className="permission-checkbox">

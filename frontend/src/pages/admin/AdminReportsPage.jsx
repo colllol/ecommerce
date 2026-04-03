@@ -1,18 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../shared/AuthContext';
 
 export default function AdminReportsPage() {
-  const { user } = useAuth();
+  const { token } = useAuth();
   const [reports, setReports] = useState(null);
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState({ startDate: '', endDate: '' });
 
-  useEffect(() => {
-    fetchReports();
-  }, []);
-
-  const fetchReports = async () => {
+  const fetchReports = useCallback(async () => {
     try {
       const params = {};
       if (dateRange.startDate) params.startDate = dateRange.startDate;
@@ -20,15 +16,20 @@ export default function AdminReportsPage() {
 
       const res = await axios.get('/api/staff/reports/overview', {
         params,
-        headers: { Authorization: `Bearer ${user.token}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
       setReports(res.data);
       setLoading(false);
-    } catch (err) {
-      console.error(err);
+    } catch {
       setLoading(false);
     }
-  };
+  }, [dateRange.startDate, dateRange.endDate, token]);
+
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    fetchReports();
+  }, [fetchReports]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleApplyFilter = () => {
     fetchReports();

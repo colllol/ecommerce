@@ -7,7 +7,10 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "reset:password": "node scripts/resetPassword.js",
-    "setup:rbac": "node scripts/setup-rbac.js"
+    "setup:rbac": "node scripts/setup-rbac.js",
+    "lint": "eslint \"src/**/*.js\"",
+    "lint:fix": "eslint \"src/**/*.js\" --fix",
+    "test": "echo \"No test suite configured\" && exit 0"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -18,6 +21,8 @@
     "mysql2": "^3.11.3"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.1.0",
     "nodemon": "^3.1.0"
   }
 }

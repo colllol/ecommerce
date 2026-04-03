@@ -1,20 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const InventoryController = require('../controllers/inventoryController');
-const { authenticate, authorizeAdmin, authorizeStaff } = require('../middlewares/authMiddleware');
+const { verifyToken, checkPermission } = require('../middlewares/authMiddleware');
 
-// Public routes (for staff to view inventory)
-router.get('/', authenticate, authorizeStaff, InventoryController.getAll);
-router.get('/transactions', authenticate, authorizeStaff, InventoryController.getTransactions);
-router.get('/summary', authenticate, authorizeStaff, InventoryController.getSummary);
-router.get('/sales-history', authenticate, authorizeStaff, InventoryController.getSalesHistory);
+// RBAC protected - Staff & Admin: VIEW_INVENTORY
+router.get('/', verifyToken, checkPermission('VIEW_INVENTORY'), InventoryController.getAll);
+router.get('/transactions', verifyToken, checkPermission('VIEW_INVENTORY'), InventoryController.getTransactions);
+router.get('/summary', verifyToken, checkPermission('VIEW_INVENTORY'), InventoryController.getSummary);
+router.get('/sales-history', verifyToken, checkPermission('VIEW_INVENTORY'), InventoryController.getSalesHistory);
 
-// Admin only routes
-router.get('/:id', authenticate, authorizeAdmin, InventoryController.getById);
-router.put('/:id', authenticate, authorizeAdmin, InventoryController.update);
-router.post('/add-stock', authenticate, authorizeAdmin, InventoryController.addStock);
+// RBAC protected - Admin/Manager: Full inventory management
+router.get('/:id', verifyToken, checkPermission('VIEW_INVENTORY'), InventoryController.getById);
+router.put('/:id', verifyToken, checkPermission('EDIT_INVENTORY'), InventoryController.update);
+router.post('/add-stock', verifyToken, checkPermission('EDIT_INVENTORY'), InventoryController.addStock);
 
-// Staff can pick products
-router.post('/pick-product', authenticate, authorizeStaff, InventoryController.pickProduct);
+// RBAC protected - Staff: pick products
+router.post('/pick-product', verifyToken, checkPermission('EDIT_INVENTORY'), InventoryController.pickProduct);
 
 module.exports = router;

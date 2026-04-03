@@ -28,18 +28,22 @@ async function runMigration() {
     const migrationPath = path.join(__dirname, 'rbac-migration.sql');
     const migrationSQL = fs.readFileSync(migrationPath, 'utf8');
 
-    // Split by semicolons and execute each statement
-    // Note: mysql2 can handle multiple statements with {multipleStatements: true}
-    const statements = migrationSQL
+    // Remove comment lines and split by semicolons
+    const cleanedSQL = migrationSQL
+      .split('\n')
+      .filter(line => !line.trim().startsWith('--'))
+      .join('\n');
+
+    const statements = cleanedSQL
       .split(';')
       .map(stmt => stmt.trim())
-      .filter(stmt => stmt.length > 0 && !stmt.startsWith('--'));
+      .filter(stmt => stmt.length > 0);
 
     console.log(`Executing ${statements.length} SQL statements...`);
 
     for (const statement of statements) {
       if (statement.trim()) {
-        await connection.execute(statement);
+        await connection.query(statement);
       }
     }
 

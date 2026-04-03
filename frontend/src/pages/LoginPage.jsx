@@ -17,11 +17,14 @@ export default function LoginPage() {
     try {
       const result = await login(email, password);
       const user = result.user;
-      
-      // Redirect based on role
-      if (user.role === 'admin') {
+      const roles = user.roles || [];
+
+      // Redirect based on roles (from RBAC system)
+      if (roles.includes('Admin')) {
         navigate('/admin');
-      } else if (user.role === 'staff') {
+      } else if (roles.includes('Manager')) {
+        navigate('/admin');
+      } else if (roles.includes('Staff')) {
         navigate('/staff');
       } else {
         navigate('/');

@@ -1,19 +1,20 @@
 const express = require('express');
 const OrderController = require('../controllers/orderController');
-const { authenticate, authorizeAdmin } = require('../middlewares/authMiddleware');
+const { verifyToken, checkPermission } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
 // khách hàng xem đơn của mình
-router.get('/my', authenticate, OrderController.getByCurrentUser);
-router.post('/', authenticate, OrderController.create);
+router.get('/my', verifyToken, OrderController.getByCurrentUser);
+router.post('/', verifyToken, OrderController.create);
 // khách hàng có thể xóa đơn của mình (chỉ khi pending)
-router.delete('/:id', authenticate, OrderController.remove);
+router.delete('/:id', verifyToken, OrderController.remove);
 
-// admin quản lý tất cả đơn
-router.get('/', authenticate, authorizeAdmin, OrderController.getAll);
-router.get('/:id', authenticate, authorizeAdmin, OrderController.getById);
-router.put('/:id', authenticate, authorizeAdmin, OrderController.update);
+// RBAC protected - admin quản lý tất cả đơn
+router.get('/', verifyToken, checkPermission('VIEW_ORDERS'), OrderController.getAll);
+router.get('/:id', verifyToken, checkPermission('VIEW_ORDERS'), OrderController.getById);
+router.put('/:id', verifyToken, checkPermission('EDIT_ORDER'), OrderController.update);
+router.delete('/admin/:id', verifyToken, checkPermission('DELETE_ORDER'), OrderController.removeAdmin);
 
 module.exports = router;
 

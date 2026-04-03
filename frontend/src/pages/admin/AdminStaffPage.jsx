@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../shared/AuthContext';
 
 export default function AdminStaffPage() {
-  const { user } = useAuth();
+  const { token } = useAuth();
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -17,14 +17,10 @@ export default function AdminStaffPage() {
     status: 'active',
   });
 
-  useEffect(() => {
-    fetchStaff();
-  }, []);
-
-  const fetchStaff = async () => {
+  const fetchStaff = useCallback(async () => {
     try {
       const res = await axios.get('/api/staff', {
-        headers: { Authorization: `Bearer ${user.token}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
       setStaff(res.data);
       setLoading(false);
@@ -32,19 +28,25 @@ export default function AdminStaffPage() {
       console.error(err);
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    fetchStaff();
+  }, [fetchStaff]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       if (editingStaff) {
         await axios.put(`/api/staff/${editingStaff.user_id}`, formData, {
-          headers: { Authorization: `Bearer ${user.token}` },
+          headers: { Authorization: `Bearer ${token}` },
         });
         alert('Cập nhật nhân viên thành công');
       } else {
         await axios.post('/api/staff', formData, {
-          headers: { Authorization: `Bearer ${user.token}` },
+          headers: { Authorization: `Bearer ${token}` },
         });
         alert('Thêm nhân viên thành công');
       }
@@ -74,7 +76,7 @@ export default function AdminStaffPage() {
     if (!confirm('Bạn có chắc muốn xóa nhân viên này?')) return;
     try {
       await axios.delete(`/api/staff/${id}`, {
-        headers: { Authorization: `Bearer ${user.token}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
       alert('Xóa thành công');
       fetchStaff();

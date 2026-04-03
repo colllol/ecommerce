@@ -1,16 +1,16 @@
 const express = require('express');
 const PaymentController = require('../controllers/paymentController');
-const { authenticate, authorizeAdmin } = require('../middlewares/authMiddleware');
+const { verifyToken, checkPermission } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
-// admin quản lý thanh toán
-router.get('/', authenticate, authorizeAdmin, PaymentController.getAll);
-router.get('/:id', authenticate, authorizeAdmin, PaymentController.getById);
-router.get('/by-order/:orderId', authenticate, authorizeAdmin, PaymentController.getByOrder);
-router.post('/', authenticate, authorizeAdmin, PaymentController.create);
-router.put('/:id', authenticate, authorizeAdmin, PaymentController.update);
-router.delete('/:id', authenticate, authorizeAdmin, PaymentController.remove);
+// RBAC protected - admin quản lý thanh toán
+router.get('/', verifyToken, checkPermission('VIEW_ORDERS'), PaymentController.getAll);
+router.get('/:id', verifyToken, checkPermission('VIEW_ORDERS'), PaymentController.getById);
+router.get('/by-order/:orderId', verifyToken, checkPermission('VIEW_ORDERS'), PaymentController.getByOrder);
+router.post('/', verifyToken, checkPermission('EDIT_ORDER'), PaymentController.create);
+router.put('/:id', verifyToken, checkPermission('EDIT_ORDER'), PaymentController.update);
+router.delete('/:id', verifyToken, checkPermission('DELETE_ORDER'), PaymentController.remove);
 
 module.exports = router;
 

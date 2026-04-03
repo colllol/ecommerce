@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../shared/AuthContext';
@@ -8,31 +8,23 @@ export default function StaffIndexPage() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  useEffect(() => {
-    fetchProducts();
-  }, [searchTerm, categoryId, minPrice, maxPrice]);
-
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const res = await axios.get('/api/categories');
       setCategories(res.data);
     } catch (err) {
       console.error(err);
     }
-  };
+  }, []);
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       const params = new URLSearchParams();
       if (searchTerm) params.set('q', searchTerm);
@@ -49,7 +41,17 @@ export default function StaffIndexPage() {
       console.error(err);
       setLoading(false);
     }
-  };
+  }, [searchTerm, categoryId, minPrice, maxPrice, token]);
+
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   if (loading) return <div className="staff-page">Đang tải...</div>;
 

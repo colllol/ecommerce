@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from './shared/AuthContext';
 import StaffDashboardPage from './pages/staff/StaffDashboardPage';
@@ -53,37 +52,47 @@ function StaffLayout({ children }) {
         }
         .staff-header {
           display: flex;
+          flex-wrap: wrap;
           justify-content: space-between;
           align-items: center;
           background: #065f46;
           color: white;
-          padding: 0 1.5rem;
-          height: 64px;
+          padding: 0.75rem 1.5rem;
+          min-height: 64px;
           position: sticky;
           top: 0;
           z-index: 100;
+          gap: 0.5rem;
         }
         .staff-header-left {
           display: flex;
+          flex-wrap: wrap;
           align-items: center;
-          gap: 2rem;
+          gap: 0.5rem;
+          flex: 1 1 auto;
+          min-width: 0;
         }
         .staff-logo {
           font-size: 1.5rem;
           font-weight: bold;
           margin: 0;
           color: #34d399;
+          flex-shrink: 0;
         }
         .staff-nav {
           display: flex;
-          gap: 0.5rem;
+          flex-wrap: wrap;
+          gap: 0.25rem;
         }
         .staff-nav-link {
-          padding: 0.5rem 1rem;
+          padding: 0.5rem 0.75rem;
           color: #d1d5db;
           text-decoration: none;
           border-radius: 0.375rem;
           transition: all 0.2s;
+          white-space: nowrap;
+          font-size: 0.85rem;
+          flex-shrink: 0;
         }
         .staff-nav-link:hover {
           background: #047857;
@@ -96,11 +105,13 @@ function StaffLayout({ children }) {
         .staff-header-right {
           display: flex;
           align-items: center;
-          gap: 1rem;
+          gap: 0.75rem;
+          flex-shrink: 0;
         }
         .staff-user-info {
           color: #9ca3af;
-          font-size: 0.875rem;
+          font-size: 0.85rem;
+          white-space: nowrap;
         }
         .btn-logout {
           padding: 0.5rem 1rem;
@@ -109,8 +120,10 @@ function StaffLayout({ children }) {
           border: none;
           border-radius: 0.375rem;
           cursor: pointer;
-          font-size: 0.875rem;
+          font-size: 0.85rem;
           transition: background 0.2s;
+          white-space: nowrap;
+          flex-shrink: 0;
         }
         .btn-logout:hover {
           background: #dc2626;
