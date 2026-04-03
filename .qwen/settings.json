@@ -13,7 +13,9 @@
       "Bash(do *)",
       "Bash(netstat *)",
       "Bash(findstr *)",
-      "Bash(rmdir *)"
+      "Bash(rmdir *)",
+      "Bash(echo *)",
+      "Bash(copy *)"
     ]
   },
   "$version": 3
