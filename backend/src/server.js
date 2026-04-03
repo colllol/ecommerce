@@ -50,7 +50,7 @@ app.post('/api/setup', async (req, res) => {
     logs.push('Connected successfully!');
     console.log('Connected successfully!');
 
-    // Read the full ecommerce_db.sql file
+    // Read the full ecommerce_db.sql file (now in backend folder)
     const sqlPath = path.join(__dirname, '..', 'ecommerce_db.sql');
     const schemaSQL = fs.readFileSync(sqlPath, 'utf8');
 
