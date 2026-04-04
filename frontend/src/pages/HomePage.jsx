@@ -13,6 +13,10 @@ export default function HomePage() {
   const { addToCart } = useCart();
 
   useEffect(() => {
+    // DEBUG: Kiểm tra biến môi trường
+    console.log('VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL);
+    console.log('API instance baseURL:', api.defaults.baseURL);
+    
     api.get('/api/categories').then((res) => setCategories(res.data));
   }, []);
 
