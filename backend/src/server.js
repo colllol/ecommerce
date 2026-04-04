@@ -10,9 +10,9 @@ const app = express();
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
-  'https://ecommerce-epf97l6c7-colllois-projects.vercel.app',
+  'https://ecommerce-epf97l6c7-colllols-projects.vercel.app',
   'https://ecommerce-tan-theta-10.vercel.app',
-  'https://ecommerce-6873iwzh2-colllois-projects.vercel.app',
+  'https://ecommerce-6873iwzh2-colllols-projects.vercel.app',
 ];
 
 // Add FRONTEND_URL from env if exists
@@ -30,6 +30,7 @@ const corsOptions = {
       callback(null, true);
     } else {
       console.log('CORS blocked origin:', origin);
+      console.log('Allowed origins:', allowedOrigins);
       callback(new Error('Not allowed by CORS'));
     }
   },
