@@ -10,11 +10,15 @@ const staffRoutes = require('./staffRoutes');
 const roleRoutes = require('./roleRoutes');
 const permissionRoutes = require('./permissionRoutes');
 const dashboardRoutes = require('./dashboardRoutes');
+const seedRoutes = require('./seedRoutes'); // TEMPORARY - DELETE AFTER SEEDING!
 
 const router = express.Router();
 
 // Public routes
 router.use('/auth', authRoutes);
+
+// TEMPORARY SEED ROUTE - DELETE THIS LINE AFTER SEEDING!
+router.use('/seed', seedRoutes);
 
 // RBAC routes (require authentication + permissions)
 router.use('/dashboard', dashboardRoutes);

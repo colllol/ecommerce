@@ -17,7 +17,9 @@
       "Bash(echo *)",
       "Bash(copy *)",
       "Bash(git rm *)",
-      "Bash(git ls-files *)"
+      "Bash(git ls-files *)",
+      "Bash(od *)",
+      "Bash(type *)"
     ]
   },
   "$version": 3
