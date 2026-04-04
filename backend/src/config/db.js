@@ -11,8 +11,10 @@ const pool = mysql.createPool({
   connectionLimit: 10,
   queueLimit: 0,
   // SSL configuration for Aiven/Cloud MySQL
-  // In production, enable SSL. For Aiven, we use simple SSL without CA verification
-  ssl: process.env.NODE_ENV === 'production' ? {} : undefined,
+  // Aiven uses self-signed certificates, so we disable strict verification
+  ssl: process.env.NODE_ENV === 'production' ? {
+    rejectUnauthorized: false
+  } : undefined,
 });
 
 // Test connection on startup
