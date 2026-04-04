@@ -10,15 +10,11 @@ const staffRoutes = require('./staffRoutes');
 const roleRoutes = require('./roleRoutes');
 const permissionRoutes = require('./permissionRoutes');
 const dashboardRoutes = require('./dashboardRoutes');
-const setupRoutes = require('./setup'); // Temporary setup endpoint
 
 const router = express.Router();
 
 // Public routes
 router.use('/auth', authRoutes);
-
-// Temporary setup route (DELETE after setup is complete!)
-router.use('/setup', setupRoutes);
 
 // RBAC routes (require authentication + permissions)
 router.use('/dashboard', dashboardRoutes);
