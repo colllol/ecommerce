@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../config/api';
 import { useAuth } from '../shared/AuthContext';
 
 export default function ProfileUserPage() {
@@ -10,9 +10,7 @@ export default function ProfileUserPage() {
 
   useEffect(() => {
     if (user && token) {
-      axios.get(`/api/orders/my`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      api.get('/api/orders/my')
         .then((ordersRes) => {
           const ordersData = ordersRes.data || [];
           setOrders(ordersData);
@@ -27,12 +25,10 @@ export default function ProfileUserPage() {
 
   const handleDeleteOrder = async (orderId) => {
     if (!confirm('Bạn có chắc muốn hủy đơn hàng này?')) return;
-    
+
     setDeletingId(orderId);
     try {
-      await axios.delete(`/api/orders/${orderId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.delete(`/api/orders/${orderId}`);
       alert('Đã hủy đơn hàng thành công');
       setOrders(orders.filter(o => o.order_id !== orderId));
     } catch (err) {
@@ -80,7 +76,7 @@ export default function ProfileUserPage() {
               const status = order.order_status || order.status || 'pending';
               const isPending = status === 'pending';
               const isDeleting = deletingId === order.order_id;
-              
+
               return (
                 <div key={order.order_id} className="order-card">
                   <div className="order-header">
@@ -95,7 +91,7 @@ export default function ProfileUserPage() {
                     <p><strong>Địa chỉ giao:</strong> {order.shipping_address}</p>
                     <p><strong>SĐT nhận hàng:</strong> {order.shipping_phone}</p>
                     {order.note && <p><strong>Ghi chú:</strong> {order.note}</p>}
-                    
+
                     {isPending && (
                       <div className="order-actions">
                         <button

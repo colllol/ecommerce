@@ -1,9 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
-import axios from 'axios';
+import api from '../../config/api';
 import { useAuth } from '../../shared/AuthContext';
 
 export default function StaffSalesHistoryPage() {
-  const { token } = useAuth();
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState({ startDate: '', endDate: '' });
@@ -14,17 +13,14 @@ export default function StaffSalesHistoryPage() {
       if (dateRange.startDate) params.startDate = dateRange.startDate;
       if (dateRange.endDate) params.endDate = dateRange.endDate;
 
-      const res = await axios.get('/api/inventory/sales-history', {
-        params,
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get('/api/inventory/sales-history', { params });
       setHistory(res.data);
       setLoading(false);
     } catch (err) {
       console.error(err);
       setLoading(false);
     }
-  }, [dateRange.startDate, dateRange.endDate, token]);
+  }, [dateRange.startDate, dateRange.endDate]);
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {

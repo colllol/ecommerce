@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import axios from 'axios';
+import api from '../../config/api';
 import { useAuth } from '../../shared/AuthContext';
 
 export default function AdminInventoryPage() {
@@ -11,16 +11,14 @@ export default function AdminInventoryPage() {
 
   const fetchInventory = useCallback(async () => {
     try {
-      const res = await axios.get('/api/inventory', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get('/api/inventory');
       setInventory(res.data);
       setLoading(false);
     } catch (err) {
       console.error(err);
       setLoading(false);
     }
-  }, [token]);
+  }, []);
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -31,9 +29,7 @@ export default function AdminInventoryPage() {
   const handleAddStock = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('/api/inventory/add-stock', addStockData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.post('/api/inventory/add-stock', addStockData);
       alert('Nhập kho thành công');
       setShowAddModal(false);
       setAddStockData({ productId: '', quantity: '', warehouseLocation: '', note: '' });
@@ -45,9 +41,7 @@ export default function AdminInventoryPage() {
 
   const handleUpdateInventory = async (inventoryId, field, value) => {
     try {
-      await axios.put(`/api/inventory/${inventoryId}`, { [field]: value }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.put(`/api/inventory/${inventoryId}`, { [field]: value });
       alert('Cập nhật thành công');
       fetchInventory();
     } catch (err) {

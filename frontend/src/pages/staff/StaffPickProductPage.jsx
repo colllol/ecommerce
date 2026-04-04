@@ -1,12 +1,10 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
-import { useAuth } from '../../shared/AuthContext';
+import api from '../../config/api';
 
 export default function StaffPickProductPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { token } = useAuth();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [pickData, setPickData] = useState({ quantity: '', note: '' });
@@ -14,16 +12,14 @@ export default function StaffPickProductPage() {
 
   const fetchProduct = useCallback(async () => {
     try {
-      const res = await axios.get(`/api/products/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get(`/api/products/${id}`);
       setProduct(res.data);
       setLoading(false);
     } catch (err) {
       console.error(err);
       setLoading(false);
     }
-  }, [id, token]);
+  }, [id]);
 
   useEffect(() => {
     fetchProduct();
@@ -33,11 +29,9 @@ export default function StaffPickProductPage() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await axios.post('/api/inventory/pick-product', {
+      await api.post('/api/inventory/pick-product', {
         productId: id,
         ...pickData,
-      }, {
-        headers: { Authorization: `Bearer ${token}` },
       });
       alert('Xuất sản phẩm thành công');
       navigate('/staff/pick-products');
@@ -54,12 +48,12 @@ export default function StaffPickProductPage() {
   return (
     <div className="staff-page">
       <Link to="/staff/pick-products" className="back-link">← Quay lại</Link>
-      
+
       <div className="pick-detail">
         <div className="pick-detail-image">
           <img src={product.image_url || 'https://via.placeholder.com/400'} alt={product.product_name} />
         </div>
-        
+
         <div className="pick-detail-info">
           <h1>{product.product_name}</h1>
           <p className="sku">SKU: {product.sku}</p>
@@ -68,7 +62,7 @@ export default function StaffPickProductPage() {
             Còn trong kho: <strong>{product.stock_quantity || 0}</strong>
           </p>
           <p className="description">{product.description || product.short_description || 'Không có mô tả'}</p>
-          
+
           <form onSubmit={handlePickProduct} className="pick-form">
             <h2>Xuất sản phẩm</h2>
             <div className="form-group">

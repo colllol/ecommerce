@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../config/api';
 import { useAuth } from '../../shared/AuthContext';
 
 export default function StaffDashboardPage() {
@@ -11,7 +11,7 @@ export default function StaffDashboardPage() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await axios.get('/api/dashboard/stats');
+        const res = await api.get('/api/dashboard/stats');
         setStats(res.data.stats);
       } catch (err) {
         console.error('Failed to fetch dashboard stats:', err);

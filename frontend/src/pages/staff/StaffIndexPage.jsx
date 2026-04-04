@@ -1,10 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
-import { useAuth } from '../../shared/AuthContext';
+import api from '../../config/api';
 
 export default function StaffIndexPage() {
-  const { token } = useAuth();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,7 +15,7 @@ export default function StaffIndexPage() {
 
   const fetchCategories = useCallback(async () => {
     try {
-      const res = await axios.get('/api/categories');
+      const res = await api.get('/api/categories');
       setCategories(res.data);
     } catch (err) {
       console.error(err);
@@ -32,16 +30,14 @@ export default function StaffIndexPage() {
       if (minPrice) params.set('minPrice', minPrice);
       if (maxPrice) params.set('maxPrice', maxPrice);
 
-      const res = await axios.get(`/api/products?${params}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get(`/api/products?${params}`);
       setProducts(res.data);
       setLoading(false);
     } catch (err) {
       console.error(err);
       setLoading(false);
     }
-  }, [searchTerm, categoryId, minPrice, maxPrice, token]);
+  }, [searchTerm, categoryId, minPrice, maxPrice]);
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -61,7 +57,7 @@ export default function StaffIndexPage() {
 
       <div className="pick-section">
         <h2>Chọn sản phẩm để xuất</h2>
-        
+
         {/* Filter Bar */}
         <div className="search-filter-bar">
           <input

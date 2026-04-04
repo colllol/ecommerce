@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import axios from 'axios';
+import api from '../../config/api';
 import { useAuth } from '../../shared/AuthContext';
 
 export default function AdminReportsPage() {
@@ -14,16 +14,13 @@ export default function AdminReportsPage() {
       if (dateRange.startDate) params.startDate = dateRange.startDate;
       if (dateRange.endDate) params.endDate = dateRange.endDate;
 
-      const res = await axios.get('/api/staff/reports/overview', {
-        params,
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get('/api/staff/reports/overview', { params });
       setReports(res.data);
       setLoading(false);
     } catch {
       setLoading(false);
     }
-  }, [dateRange.startDate, dateRange.endDate, token]);
+  }, [dateRange.startDate, dateRange.endDate]);
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {

@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import axios from 'axios';
+import api from '../../config/api';
 import { useAuth } from '../../shared/AuthContext';
 
 export default function AdminStaffPage() {
@@ -19,16 +19,14 @@ export default function AdminStaffPage() {
 
   const fetchStaff = useCallback(async () => {
     try {
-      const res = await axios.get('/api/staff', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get('/api/staff');
       setStaff(res.data);
       setLoading(false);
     } catch (err) {
       console.error(err);
       setLoading(false);
     }
-  }, [token]);
+  }, []);
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -40,14 +38,10 @@ export default function AdminStaffPage() {
     e.preventDefault();
     try {
       if (editingStaff) {
-        await axios.put(`/api/staff/${editingStaff.user_id}`, formData, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await api.put(`/api/staff/${editingStaff.user_id}`, formData);
         alert('Cập nhật nhân viên thành công');
       } else {
-        await axios.post('/api/staff', formData, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await api.post('/api/staff', formData);
         alert('Thêm nhân viên thành công');
       }
       setShowModal(false);
@@ -75,9 +69,7 @@ export default function AdminStaffPage() {
   const handleDelete = async (id) => {
     if (!confirm('Bạn có chắc muốn xóa nhân viên này?')) return;
     try {
-      await axios.delete(`/api/staff/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.delete(`/api/staff/${id}`);
       alert('Xóa thành công');
       fetchStaff();
     } catch (err) {
