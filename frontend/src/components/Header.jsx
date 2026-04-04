@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import axios from 'axios';
+import api from '../config/api';
 import { useAuth } from '../shared/AuthContext';
 
 export default function Header() {
@@ -10,7 +10,7 @@ export default function Header() {
   const [showMenu, setShowMenu] = useState(false);
 
   useEffect(() => {
-    axios.get('/api/categories').then((res) => setCategories(res.data));
+    api.get('/api/categories').then((res) => setCategories(res.data));
   }, []);
 
   const isLoginPage = location.pathname === '/login';

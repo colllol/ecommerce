@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import api from '../config/api';
 import { useCart } from '../shared/CartContext';
 
 export default function ProductDetailPage() {
@@ -10,7 +10,7 @@ export default function ProductDetailPage() {
   const { addToCart } = useCart();
 
   useEffect(() => {
-    axios.get(`/api/products/${id}`).then((res) => setProduct(res.data));
+    api.get(`/api/products/${id}`).then((res) => setProduct(res.data));
   }, [id]);
 
   if (!product) return <div>Đang tải sản phẩm...</div>;

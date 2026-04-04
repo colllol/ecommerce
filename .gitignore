@@ -3,6 +3,7 @@
 node_modules/
 
 # Environment files (NEVER commit secrets!)
+.qwen/
 .env
 .env.local
 .env.production

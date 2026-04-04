@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../config/api';
 import { useCart } from '../shared/CartContext';
 
 export default function HomePage() {
@@ -13,7 +13,7 @@ export default function HomePage() {
   const { addToCart } = useCart();
 
   useEffect(() => {
-    axios.get('/api/categories').then((res) => setCategories(res.data));
+    api.get('/api/categories').then((res) => setCategories(res.data));
   }, []);
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export default function HomePage() {
     if (categoryId) params.set('categoryId', categoryId);
     if (minPrice) params.set('minPrice', minPrice);
     if (maxPrice) params.set('maxPrice', maxPrice);
-    axios.get(`/api/products?${params}`).then((res) => setProducts(res.data));
+    api.get(`/api/products?${params}`).then((res) => setProducts(res.data));
   }, [search, categoryId, minPrice, maxPrice]);
 
   return (

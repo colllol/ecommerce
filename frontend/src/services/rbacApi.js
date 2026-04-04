@@ -1,36 +1,34 @@
-import axios from 'axios';
-
-const base = '/api';
+import api from '../config/api';
 
 // Roles API
 export const rolesApi = {
-  getAll: () => axios.get(`${base}/roles`),
-  getById: (id) => axios.get(`${base}/roles/${id}`),
-  create: (data) => axios.post(`${base}/roles`, data),
-  update: (id, data) => axios.put(`${base}/roles/${id}`, data),
-  delete: (id) => axios.delete(`${base}/roles/${id}`),
-  assignPermissions: (roleId, permissionIds) => 
-    axios.post(`${base}/roles/${roleId}/permissions`, { permissionIds }),
-  getPermissionsList: () => axios.get(`${base}/roles/permissions/list`),
+  getAll: () => api.get('/api/roles'),
+  getById: (id) => api.get(`/api/roles/${id}`),
+  create: (data) => api.post('/api/roles', data),
+  update: (id, data) => api.put(`/api/roles/${id}`, data),
+  delete: (id) => api.delete(`/api/roles/${id}`),
+  assignPermissions: (roleId, permissionIds) =>
+    api.post(`/api/roles/${roleId}/permissions`, { permissionIds }),
+  getPermissionsList: () => api.get('/api/roles/permissions/list'),
 };
 
 // Permissions API
 export const permissionsApi = {
-  getAll: () => axios.get(`${base}/permissions`),
-  getById: (id) => axios.get(`${base}/permissions/${id}`),
-  create: (data) => axios.post(`${base}/permissions`, data),
-  update: (id, data) => axios.put(`${base}/permissions/${id}`, data),
-  delete: (id) => axios.delete(`${base}/permissions/${id}`),
+  getAll: () => api.get('/api/permissions'),
+  getById: (id) => api.get(`/api/permissions/${id}`),
+  create: (data) => api.post('/api/permissions', data),
+  update: (id, data) => api.put(`/api/permissions/${id}`, data),
+  delete: (id) => api.delete(`/api/permissions/${id}`),
 };
 
 // Users API (extended for RBAC)
 export const usersApi = {
-  getAll: () => axios.get(`${base}/users`),
-  getById: (id) => axios.get(`${base}/users/${id}`),
-  create: (data) => axios.post(`${base}/users`, data),
-  update: (id, data) => axios.put(`${base}/users/${id}`, data),
-  delete: (id) => axios.delete(`${base}/users/${id}`),
-  assignRoles: (userId, roleIds) => 
-    axios.post(`${base}/users/${userId}/roles`, { roleIds }),
-  getProfile: () => axios.get(`${base}/users/profile/me`),
+  getAll: () => api.get('/api/users'),
+  getById: (id) => api.get(`/api/users/${id}`),
+  create: (data) => api.post('/api/users', data),
+  update: (id, data) => api.put(`/api/users/${id}`, data),
+  delete: (id) => api.delete(`/api/users/${id}`),
+  assignRoles: (userId, roleIds) =>
+    api.post(`/api/users/${userId}/roles`, { roleIds }),
+  getProfile: () => api.get('/api/users/profile/me'),
 };

@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import api from '../config/api';
 import axios from 'axios';
 
 const AuthContext = createContext(null);
@@ -18,7 +19,7 @@ export function AuthProvider({ children }) {
         if (parsed.token && parsed.user) {
           setUser(parsed.user);
           setToken(parsed.token);
-          axios.defaults.headers.common.Authorization = `Bearer ${parsed.token}`;
+          api.defaults.headers.common.Authorization = `Bearer ${parsed.token}`;
         } else {
           localStorage.removeItem('auth');
         }
@@ -31,15 +32,15 @@ export function AuthProvider({ children }) {
 
   // Register 401 interceptor once on mount
   useEffect(() => {
-    interceptorRef.current = axios.interceptors.response.use(
+    interceptorRef.current = api.interceptors.response.use(
       (res) => res,
       (err) => {
         // Only handle 401s for requests that had an auth token
         const config = err.config || {};
-        const hadAuth = config.headers?.Authorization || axios.defaults.headers.common.Authorization;
+        const hadAuth = config.headers?.Authorization || api.defaults.headers.common.Authorization;
         if (err.response?.status === 401 && hadAuth) {
           localStorage.removeItem('auth');
-          delete axios.defaults.headers.common.Authorization;
+          delete api.defaults.headers.common.Authorization;
           setUser(null);
           setToken(null);
           window.location.href = '/login';
@@ -49,13 +50,13 @@ export function AuthProvider({ children }) {
     );
     return () => {
       if (interceptorRef.current !== null) {
-        axios.interceptors.response.eject(interceptorRef.current);
+        api.interceptors.response.eject(interceptorRef.current);
       }
     };
   }, []);
 
   const login = async (email, password) => {
-    const res = await axios.post('/api/auth/login', { email, password });
+    const res = await api.post('/api/auth/login', { email, password });
     const { token: jwt, user: userData } = res.data;
 
     setUser(userData);
@@ -63,7 +64,7 @@ export function AuthProvider({ children }) {
 
     const authData = { user: userData, token: jwt };
     localStorage.setItem('auth', JSON.stringify(authData));
-    axios.defaults.headers.common.Authorization = `Bearer ${jwt}`;
+    api.defaults.headers.common.Authorization = `Bearer ${jwt}`;
 
     return res.data;
   };
@@ -72,7 +73,7 @@ export function AuthProvider({ children }) {
     setUser(null);
     setToken(null);
     localStorage.removeItem('auth');
-    delete axios.defaults.headers.common.Authorization;
+    delete api.defaults.headers.common.Authorization;
   };
 
   const updateUser = (updatedUser) => {

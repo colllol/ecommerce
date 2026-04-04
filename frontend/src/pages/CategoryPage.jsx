@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import axios from 'axios';
+import api from '../config/api';
 import { useCart } from '../shared/CartContext';
 
 export default function CategoryPage() {
@@ -16,7 +16,7 @@ export default function CategoryPage() {
     if (search) params.set('q', search);
     if (minPrice) params.set('minPrice', minPrice);
     if (maxPrice) params.set('maxPrice', maxPrice);
-    axios.get(`/api/products?${params}`).then((res) => setProducts(res.data));
+    api.get(`/api/products?${params}`).then((res) => setProducts(res.data));
   }, [id, search, minPrice, maxPrice]);
 
   return (

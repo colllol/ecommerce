@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import axios from 'axios';
+import api from '../config/api';
 import { useAuth } from '../shared/AuthContext';
 import { useCart } from '../shared/CartContext';
 import { Link } from 'react-router-dom';
@@ -41,7 +41,7 @@ export default function CheckoutPage() {
     }
     setSubmitting(true);
     try {
-      const res = await axios.post('/api/orders', {
+      const res = await api.post('/api/orders', {
         ...form,
         items: orderItems,
         shipping_fee: 0,

@@ -15,7 +15,9 @@
       "Bash(findstr *)",
       "Bash(rmdir *)",
       "Bash(echo *)",
-      "Bash(copy *)"
+      "Bash(copy *)",
+      "Bash(git rm *)",
+      "Bash(git ls-files *)"
     ]
   },
   "$version": 3

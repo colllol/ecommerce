@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
+import api from '../config/api';
 
 // Mock AI responses - có thể thay bằng API thật (OpenAI, etc.)
 const getAIResponse = (message, products = [], categories = []) => {
@@ -94,8 +94,8 @@ export default function AIChatBox() {
   useEffect(() => {
     if (open) {
       Promise.all([
-        axios.get('/api/products').then((res) => setProducts(res.data || [])),
-        axios.get('/api/categories').then((res) => setCategories(res.data || [])),
+        api.get('/api/products').then((res) => setProducts(res.data || [])),
+        api.get('/api/categories').then((res) => setCategories(res.data || [])),
       ]).catch(() => {});
     }
   }, [open]);
